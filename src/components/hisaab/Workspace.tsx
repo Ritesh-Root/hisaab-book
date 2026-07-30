@@ -325,8 +325,8 @@ export function Workspace() {
   const allParsed = uploads.every((u) => u.status === "parsed");
 
   return (
-    <div className="min-h-screen bg-shell p-3 sm:p-5">
-      <div className="mx-auto max-w-[1200px] overflow-hidden rounded-[28px] bg-background shadow-[0_24px_60px_-24px_oklch(0.4_0.12_300_/_0.45)]">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
+      <div className="flex min-h-0 flex-1 flex-col">
         {/* header */}
         <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-5 py-3">
           <div className="grid size-11 place-items-center rounded-2xl bg-primary">
@@ -353,9 +353,9 @@ export function Workspace() {
           </div>
         </header>
 
-        <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[280px_1fr]">
+        <div className="grid min-h-0 flex-1 gap-4 p-4 sm:p-5 lg:grid-cols-[280px_1fr]">
           {/* rail */}
-          <aside className="space-y-4 rounded-2xl bg-card p-4">
+          <aside className="min-h-0 space-y-4 overflow-y-auto rounded-2xl bg-card p-4">
             <div>
               <p className="label-caps text-muted-foreground">Statements</p>
               <div className="mt-2 space-y-2">
@@ -371,9 +371,9 @@ export function Workspace() {
           </aside>
 
           {/* main */}
-          <main className="min-w-0">
+          <main className="min-w-0 min-h-0 overflow-y-auto">
             {state === "empty" && (
-              <div className="grid min-h-[420px] place-items-center rounded-2xl bg-card p-8 text-center">
+              <div className="grid h-full place-items-center rounded-2xl bg-card p-8 text-center">
                 <div className="max-w-md">
                   <div className="mx-auto mb-5 flex w-fit gap-2">
                     {APPS.map((a) => (
@@ -392,7 +392,7 @@ export function Workspace() {
             )}
 
             {state === "parsing" && (
-              <div className="grid min-h-[420px] place-items-center rounded-2xl bg-card p-8 text-center">
+              <div className="grid h-full place-items-center rounded-2xl bg-card p-8 text-center">
                 <div>
                   <h2 className="font-display text-[30px] font-bold">Reading your statements…</h2>
                   <p className="mt-2 text-[15px] text-muted-foreground">This takes a moment</p>
