@@ -64,7 +64,7 @@
 
 :root {
   --radius: 1rem;
-  --shell: oklch(0.86 0.06 300);
+  --shell: oklch(0.975 0.008 300);
   --background: oklch(0.975 0.008 300);
   --foreground: oklch(0.24 0.03 295);
   --card: oklch(1 0 0);
@@ -104,7 +104,7 @@
   }
 
   body {
-    background-color: var(--color-shell);
+    background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
