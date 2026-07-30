@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { reconcileFiles } from "@/server-fns/reconcile";
+import type { ReconciliationResult } from "@/lib/engine/types";
 import { APP_DOT, APP_LABEL, formatPaise, formatPaisePlain } from "@/lib/hisaab/format";
-import { FINDINGS, FLAG_AT, SUMMARY, TICKER_ROWS, TX_COUNTS, UPLOAD_SEED } from "@/lib/hisaab/mock";
-import type { AppName, DemoState, Finding, Stage, Upload } from "@/lib/hisaab/types";
+import type {
+  AppName,
+  DemoState,
+  Finding,
+  Stage,
+  Summary,
+  Upload,
+  UploadStatus,
+} from "@/lib/hisaab/types";
 
 const STAGES: { key: Stage; hi: string; en: string }[] = [
   { key: "parse", hi: "Parse", en: "Read statements" },
@@ -12,6 +22,27 @@ const STAGES: { key: Stage; hi: string; en: string }[] = [
 
 const APPS: AppName[] = ["phonepe", "gpay", "paytm"];
 
+type FileKey = AppName | "register";
+
+const SAMPLE_PATHS: Record<FileKey, string> = {
+  phonepe: "/samples/phonepe_july.csv",
+  gpay: "/samples/gpay_july.csv",
+  paytm: "/samples/paytm_july.csv",
+  register: "/samples/register.csv",
+};
+
+const UPLOAD_SEED: Upload[] = [
+  { app: "phonepe", status: "idle" },
+  { app: "gpay", status: "idle" },
+  { app: "paytm", status: "idle" },
+];
+
+/** Quick client-side row count for the "parsed" stamp (header excluded). */
+function countRows(text: string): number {
+  const lines = text.trim().split(/\r?\n/);
+  return Math.max(0, lines.length - 1);
+}
+
 function Dot({ app }: { app: AppName }) {
   return <span className={`inline-block size-2.5 rounded-full ${APP_DOT[app]}`} />;
 }
@@ -19,25 +50,40 @@ function Dot({ app }: { app: AppName }) {
 /* ---------------------------------- rail --------------------------------- */
 
 function DropZone({
-  upload,
-  onDrop,
+  label,
+  dot,
+  status,
+  txCount,
+  hint,
+  onFile,
 }: {
-  upload: Upload;
-  onDrop: (app: AppName) => void;
+  label: string;
+  dot?: AppName;
+  status: UploadStatus;
+  txCount?: number;
+  hint: string;
+  onFile: (text: string, fileName: string) => void;
 }) {
   const [over, setOver] = useState(false);
-  const parsed = upload.status === "parsed";
+  const inputRef = useRef<HTMLInputElement>(null);
+  const parsed = status === "parsed";
+
+  async function accept(file: File | undefined | null) {
+    if (!file) return;
+    const text = await file.text();
+    onFile(text, file.name);
+  }
 
   return (
     <div
       role="button"
       tabIndex={0}
-      aria-label={`Upload ${APP_LABEL[upload.app]} statement`}
-      onClick={() => onDrop(upload.app)}
+      aria-label={`Upload ${label}`}
+      onClick={() => inputRef.current?.click()}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onDrop(upload.app);
+          inputRef.current?.click();
         }
       }}
       onDragOver={(e) => {
@@ -48,7 +94,7 @@ function DropZone({
       onDrop={(e) => {
         e.preventDefault();
         setOver(false);
-        onDrop(upload.app);
+        void accept(e.dataTransfer.files?.[0]);
       }}
       className={`cursor-pointer rounded-2xl border-2 border-dashed p-3 transition-all outline-none focus-visible:ring-2 focus-visible:ring-ring ${
         over
@@ -58,9 +104,19 @@ function DropZone({
             : "border-border bg-muted hover:bg-lilac/40"
       }`}
     >
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(e) => {
+          void accept(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
       <div className="flex items-center gap-2">
-        <Dot app={upload.app} />
-        <span className="text-[13px] font-semibold">{APP_LABEL[upload.app]}</span>
+        {dot && <Dot app={dot} />}
+        <span className="text-[13px] font-semibold">{label}</span>
       </div>
       {parsed ? (
         <div className="stamp-in mt-1.5 flex items-center gap-1.5">
@@ -68,13 +124,13 @@ function DropZone({
             ✓
           </span>
           <span className="font-mono text-[12px] text-success">
-            {upload.txCount} transactions parsed
+            {txCount ?? 0} transactions parsed
           </span>
         </div>
-      ) : upload.status === "parsing" ? (
+      ) : status === "parsing" ? (
         <p className="pulse-soft mt-1.5 text-[12px] text-muted-foreground">Parsing…</p>
       ) : (
-        <p className="mt-1.5 text-[12px] text-muted-foreground">Drop CSV / click to load</p>
+        <p className="mt-1.5 text-[12px] text-muted-foreground">{hint}</p>
       )}
     </div>
   );
@@ -99,7 +155,9 @@ function Stepper({ stage, done }: { stage: Stage; done: Stage[] }) {
             >
               {isDone ? "✓" : STAGES.indexOf(s) + 1}
             </span>
-            <span className={`text-[13px] ${active || isDone ? "font-semibold" : "text-muted-foreground"}`}>
+            <span
+              className={`text-[13px] ${active || isDone ? "font-semibold" : "text-muted-foreground"}`}
+            >
               {s.hi} <span className="text-[11px] text-muted-foreground">{s.en}</span>
             </span>
           </li>
@@ -113,7 +171,11 @@ function Stepper({ stage, done }: { stage: Stage; done: Stage[] }) {
 
 const KIND_STYLE: Record<Finding["kind"], { chip: string; tile: string; label: string }> = {
   missing: { chip: "bg-danger/12 text-danger", tile: "bg-blossom/45", label: "missing" },
-  unsettled: { chip: "bg-warning/20 text-[oklch(0.5_0.13_70)]", tile: "bg-apricot/45", label: "unsettled" },
+  unsettled: {
+    chip: "bg-warning/20 text-[oklch(0.5_0.13_70)]",
+    tile: "bg-apricot/45",
+    label: "unsettled",
+  },
   duplicate: { chip: "bg-lilac-deep/20 text-primary", tile: "bg-lilac/70", label: "duplicate" },
 };
 
@@ -150,10 +212,10 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
       </div>
 
       <h3 className="mt-2 text-[20px] leading-tight font-semibold">{finding.titleEn}</h3>
-      
+      <p className="text-[12px] text-muted-foreground">{finding.titleHi}</p>
 
       <p className="mt-2 text-[14px]">{finding.detailEn}</p>
-      
+      <p className="text-[13px] text-muted-foreground">{finding.detailHi}</p>
 
       <div className="mt-3">
         {verified ? (
@@ -197,16 +259,34 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
 
 /* --------------------------------- report --------------------------------- */
 
-export function ReportView({ readOnly = false }: { readOnly?: boolean }) {
+export function ReportView({
+  summary,
+  findings,
+  readOnly = false,
+}: {
+  summary: Summary;
+  findings: Finding[];
+  readOnly?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {[
-          { hi: "Across three apps", en: "Total transactions", v: String(SUMMARY.totalTx), tile: "bg-lilac/70" },
-          { hi: "Rupee-for-rupee", en: "Matched", v: String(SUMMARY.matched), tile: "bg-mint/70" },
-          { hi: "Need your attention", en: "Problems", v: String(SUMMARY.problems), tile: "bg-apricot/60" },
+          {
+            hi: "Across three apps",
+            en: "Total transactions",
+            v: String(summary.totalTx),
+            tile: "bg-lilac/70",
+          },
+          { hi: "Rupee-for-rupee", en: "Matched", v: String(summary.matched), tile: "bg-mint/70" },
+          {
+            hi: "Need your attention",
+            en: "Problems",
+            v: String(summary.problems),
+            tile: "bg-apricot/60",
+          },
         ].map((c) => (
           <div key={c.en} className={`rounded-2xl p-4 ${c.tile}`}>
             <p className="label-caps text-muted-foreground">{c.en}</p>
@@ -217,15 +297,16 @@ export function ReportView({ readOnly = false }: { readOnly?: boolean }) {
       </div>
 
       <div className="space-y-3">
-        {FINDINGS.map((f, i) => (
+        {findings.map((f, i) => (
           <FindingCard key={f.id} finding={f} index={i} />
         ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card p-4">
         <p className="text-[16px]">
-          201 of 204 transactions match · 3 problems ·{" "}
-          <span className="font-mono font-semibold">{formatPaise(SUMMARY.missingPaise)}</span> outstanding
+          {summary.matched} of {summary.totalTx} transactions match · {summary.problems} problems ·{" "}
+          <span className="font-mono font-semibold">{formatPaise(summary.missingPaise)}</span>{" "}
+          outstanding
         </p>
         {!readOnly && (
           <button
@@ -249,8 +330,12 @@ export function ReportView({ readOnly = false }: { readOnly?: boolean }) {
 /* ------------------------------- workspace -------------------------------- */
 
 export function Workspace() {
+  const [files, setFiles] = useState<Partial<Record<FileKey, string>>>({});
   const [uploads, setUploads] = useState<Upload[]>(UPLOAD_SEED);
+  const [registerStatus, setRegisterStatus] = useState<UploadStatus>("idle");
+  const [registerCount, setRegisterCount] = useState<number>(0);
   const [state, setState] = useState<DemoState>("empty");
+  const [result, setResult] = useState<ReconciliationResult | null>(null);
   const [visible, setVisible] = useState(0);
   const [missing, setMissing] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -266,63 +351,167 @@ export function Workspace() {
     timers.current.push(setTimeout(fn, ms));
   };
 
-  function loadOne(app: AppName) {
-    setUploads((prev) =>
-      prev.map((u) => (u.app === app ? { ...u, status: "parsing" } : u)),
-    );
-    setState("parsing");
-    push(() => {
-      setUploads((prev) =>
-        prev.map((u) =>
-          u.app === app
-            ? { ...u, status: "parsed", fileName: `${app}_july.csv`, txCount: TX_COUNTS[app] }
-            : u,
-        ),
-      );
-    }, 450);
+  function setFile(key: FileKey, text: string) {
+    setFiles((prev) => ({ ...prev, [key]: text }));
+    if (key === "register") {
+      setRegisterStatus("parsing");
+      push(() => {
+        setRegisterStatus("parsed");
+        setRegisterCount(countRows(text));
+      }, 450);
+    } else {
+      setUploads((prev) => prev.map((u) => (u.app === key ? { ...u, status: "parsing" } : u)));
+      push(() => {
+        setUploads((prev) =>
+          prev.map((u) =>
+            u.app === key
+              ? { ...u, status: "parsed", fileName: `${key}_july.csv`, txCount: countRows(text) }
+              : u,
+          ),
+        );
+      }, 450);
+    }
   }
 
-  function runDemo() {
+  async function loadSampleTexts(keys: FileKey[]): Promise<Record<string, string>> {
+    const entries = await Promise.all(
+      keys.map(async (k) => [k, await (await fetch(SAMPLE_PATHS[k])).text()] as const),
+    );
+    return Object.fromEntries(entries);
+  }
+
+  async function startFlow() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     setVisible(0);
     setMissing(0);
+
+    // Resolve inputs: user files win; samples fill any gap.
+    const haveApps = APPS.every((a) => files[a]);
+    let inputs: Record<FileKey, string>;
+    if (haveApps && files.register) {
+      inputs = {
+        phonepe: files.phonepe!,
+        gpay: files.gpay!,
+        paytm: files.paytm!,
+        register: files.register,
+      };
+    } else {
+      const needed = [
+        ...APPS.filter((a) => !files[a]),
+        ...(files.register ? [] : ["register" as const]),
+      ];
+      const sampled = await loadSampleTexts(needed);
+      const merged = { ...files, ...sampled } as Record<FileKey, string>;
+      setFiles(merged);
+      inputs = merged;
+    }
+
+    // Staged "parsed" animation over the real texts.
     setState("parsing");
-    setUploads(UPLOAD_SEED.map((u) => ({ ...u, status: "parsing" })));
     APPS.forEach((app, i) => {
-      push(() => {
-        setUploads((prev) =>
-          prev.map((u) =>
-            u.app === app
-              ? { ...u, status: "parsed", fileName: `${app}_july.csv`, txCount: TX_COUNTS[app] }
-              : u,
-          ),
-        );
-      }, 350 + i * 300);
+      const text = inputs[app];
+      push(
+        () => {
+          setUploads((prev) =>
+            prev.map((u) =>
+              u.app === app
+                ? { ...u, status: "parsed", fileName: `${app}_july.csv`, txCount: countRows(text) }
+                : u,
+            ),
+          );
+        },
+        350 + i * 300,
+      );
     });
-    push(() => setState("matching"), 1400);
+    push(
+      () => {
+        setRegisterStatus("parsed");
+        setRegisterCount(countRows(inputs.register));
+      },
+      350 + 3 * 300,
+    );
+
+    // Real reconciliation in parallel with the animation.
+    try {
+      const res = await reconcileFiles({
+        data: {
+          phonepe: inputs.phonepe,
+          gpay: inputs.gpay,
+          paytm: inputs.paytm,
+          register: inputs.register,
+        },
+      });
+      if ("error" in res) {
+        toast.error("Reconciliation failed", { description: res.error });
+        setState("empty");
+        return;
+      }
+      // Let the parse animation breathe, then run the ticker on real rows.
+      push(() => {
+        setResult(res);
+        setState("matching");
+      }, 1500);
+    } catch (err) {
+      toast.error("Reconciliation failed", {
+        description: err instanceof Error ? err.message : "Unexpected error",
+      });
+      setState("empty");
+    }
   }
 
-  // Deterministic ticker: 150 rows over ~3.6s, then report. Total ≤ 6s.
+  // Ticker replay over the REAL result: flags + missing-money counter.
+  const flagSet = useMemo(() => new Set(result?.flagUtrs ?? []), [result]);
+  const counterPlan = useMemo(() => {
+    // Amounts staged into the counter as their ticker rows appear;
+    // entries whose UTR never appears (e.g. missing — no credit row) land at the end.
+    const byUtr = new Map<string, number>();
+    let tail = 0;
+    const flagUtrs = new Set(result?.flagUtrs ?? []);
+    for (const f of result?.findings ?? []) {
+      const utr = f.evidence
+        .map((e) => e.raw)
+        .join(" ")
+        .match(/\b(\d{4})\b(?=[^\d]*$)/)?.[1];
+      if (utr && flagUtrs.has(utr)) {
+        byUtr.set(utr, (byUtr.get(utr) ?? 0) + f.amountPaise);
+      } else {
+        tail += f.amountPaise;
+      }
+    }
+    return { byUtr, tail };
+  }, [result, flagSet]);
+
   useEffect(() => {
-    if (state !== "matching") return;
+    if (state !== "matching" || !result) return;
+    const rows = result.ticker;
+    const consumed = new Set<string>();
     let i = 0;
+    let acc = 0;
     const id = setInterval(() => {
       i += 1;
       setVisible(i);
-      if (i === 50) setMissing(185000);
-      if (i === 100) setMissing(335000);
-      if (i === 140) setMissing(420000);
-      if (i >= TICKER_ROWS.length) {
+      const row = rows[i - 1];
+      if (row && flagSet.has(row.utrLast4) && !consumed.has(row.utrLast4)) {
+        consumed.add(row.utrLast4);
+        acc += counterPlan.byUtr.get(row.utrLast4) ?? 0;
+        setMissing(acc);
+      }
+      if (i >= rows.length) {
         clearInterval(id);
+        setMissing(acc + counterPlan.tail);
         setTimeout(() => setState("report"), 500);
       }
     }, 24);
     return () => clearInterval(id);
-  }, [state]);
+  }, [state, result, flagSet, counterPlan]);
 
-  const rows = useMemo(() => TICKER_ROWS.slice(0, visible).slice(-14).reverse(), [visible]);
+  const rows = useMemo(
+    () => (result ? result.ticker.slice(0, visible).slice(-14).reverse() : []),
+    [result, visible],
+  );
   const allParsed = uploads.every((u) => u.status === "parsed");
+  const totalTx = result?.summary.totalTx ?? 0;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">
@@ -330,7 +519,9 @@ export function Workspace() {
         {/* header */}
         <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-5 py-3">
           <div className="grid size-11 place-items-center rounded-2xl bg-primary">
-            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">H</span>
+            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">
+              H
+            </span>
           </div>
           <div>
             <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab</h1>
@@ -340,15 +531,15 @@ export function Workspace() {
             {allParsed && (
               <div className="rounded-full bg-lilac/70 px-4 py-2 text-[13px]">
                 Today's books · 18 July 2024 ·{" "}
-                <span className="font-mono font-semibold">{SUMMARY.totalTx}</span> transactions
+                <span className="font-mono font-semibold">{totalTx || "—"}</span> transactions
               </div>
             )}
             <button
               type="button"
-              onClick={runDemo}
+              onClick={() => void startFlow()}
               className="rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              {state === "empty" ? "Run reconciliation" : "Replay"}
+              {state === "empty" ? "Load sample statements" : "Replay"}
             </button>
           </div>
         </header>
@@ -360,8 +551,23 @@ export function Workspace() {
               <p className="label-caps text-muted-foreground">Statements</p>
               <div className="mt-2 space-y-2">
                 {uploads.map((u) => (
-                  <DropZone key={u.app} upload={u} onDrop={loadOne} />
+                  <DropZone
+                    key={u.app}
+                    label={APP_LABEL[u.app]}
+                    dot={u.app}
+                    status={u.status}
+                    txCount={u.txCount}
+                    hint="Drop CSV / click to load"
+                    onFile={(text) => setFile(u.app, text)}
+                  />
                 ))}
+                <DropZone
+                  label="Sales register"
+                  status={registerStatus}
+                  txCount={registerCount}
+                  hint="Optional — sample used if empty"
+                  onFile={(text) => setFile("register", text)}
+                />
               </div>
             </div>
             <div className="border-t border-border pt-3">
@@ -387,6 +593,13 @@ export function Workspace() {
                     Add your PhonePe, Google Pay and Paytm exports plus your sales register. Hisaab
                     matches every rupee.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => void startFlow()}
+                    className="mt-6 rounded-full bg-primary px-6 py-3 text-[15px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    Load sample statements
+                  </button>
                 </div>
               </div>
             )}
@@ -401,7 +614,9 @@ export function Workspace() {
                       <span
                         key={u.app}
                         className={`rounded-full px-3 py-1.5 font-mono text-[12px] ${
-                          u.status === "parsed" ? "bg-mint/70 text-success" : "bg-secondary text-muted-foreground"
+                          u.status === "parsed"
+                            ? "bg-mint/70 text-success"
+                            : "bg-secondary text-muted-foreground"
                         }`}
                       >
                         {u.status === "parsed" ? `✓ ${u.txCount}` : "…"} {u.app}
@@ -412,7 +627,7 @@ export function Workspace() {
               </div>
             )}
 
-            {state === "matching" && (
+            {state === "matching" && result && (
               <div className="space-y-4">
                 <div className="rounded-2xl bg-lilac/70 p-5">
                   <p className="label-caps text-muted-foreground">Missing money found</p>
@@ -423,13 +638,13 @@ export function Workspace() {
                     ₹{formatPaisePlain(missing)}
                   </p>
                   <p className="mt-1 text-[14px]">
-                    <span className="font-mono">{visible}</span> / {TICKER_ROWS.length} rows matched
+                    <span className="font-mono">{visible}</span> / {result.ticker.length} rows
+                    matched
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card p-2">
                   {rows.map((r, i) => {
-                    const idx = visible - 1 - i;
-                    const flagged = FLAG_AT.includes(idx);
+                    const flagged = flagSet.has(r.utrLast4);
                     return (
                       <div
                         key={r.id}
@@ -451,7 +666,17 @@ export function Workspace() {
               </div>
             )}
 
-            {state === "report" && <ReportView />}
+            {state === "matching" && !result && (
+              <div className="grid h-full place-items-center rounded-2xl bg-card p-8">
+                <p className="pulse-soft font-display text-[26px] font-bold">
+                  Matching every rupee…
+                </p>
+              </div>
+            )}
+
+            {state === "report" && result && (
+              <ReportView summary={result.summary} findings={result.findings} />
+            )}
           </main>
         </div>
       </div>
