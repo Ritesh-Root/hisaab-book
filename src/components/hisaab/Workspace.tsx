@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { APP_DOT, APP_LABEL, formatPaise, formatPaisePlain } from "@/lib/hisaab/format";
-import { FINDINGS, SUMMARY, TICKER_ROWS, TX_COUNTS, UPLOAD_SEED } from "@/lib/hisaab/mock";
+import { FINDINGS, FLAG_AT, SUMMARY, TICKER_ROWS, TX_COUNTS, UPLOAD_SEED } from "@/lib/hisaab/mock";
 import type { AppName, DemoState, Finding, Stage, Upload } from "@/lib/hisaab/types";
 
 const STAGES: { key: Stage; hi: string; en: string }[] = [
@@ -457,5 +457,3 @@ export function Workspace() {
     </div>
   );
 }
-
-const FLAG_AT = [42, 88, 126];
