@@ -4,12 +4,12 @@ import { ReportView } from "@/components/hisaab/Workspace";
 export const Route = createFileRoute("/report/$id")({
   head: () => ({
     meta: [
-      { title: "रिपोर्ट · Hisaab reconciliation report" },
+      { title: "Hisaab reconciliation report" },
       {
         name: "description",
         content: "Read-only Hisaab reconciliation report: matched transactions, problems and missing money.",
       },
-      { property: "og:title", content: "रिपोर्ट · Hisaab reconciliation report" },
+      { property: "og:title", content: "Hisaab reconciliation report" },
       { property: "og:description", content: "Shared read-only UPI reconciliation report." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -28,7 +28,7 @@ function ReportPage() {
             <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">ह</span>
           </div>
           <div>
-            <h1 className="font-display text-[22px] leading-tight font-bold">हिसाब रिपोर्ट</h1>
+            <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab report</h1>
             <p className="label-caps text-muted-foreground">Read-only · {id}</p>
           </div>
           <Link

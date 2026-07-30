@@ -4,10 +4,10 @@ import { FINDINGS, FLAG_AT, SUMMARY, TICKER_ROWS, TX_COUNTS, UPLOAD_SEED } from 
 import type { AppName, DemoState, Finding, Stage, Upload } from "@/lib/hisaab/types";
 
 const STAGES: { key: Stage; hi: string; en: string }[] = [
-  { key: "parse", hi: "पढ़ना", en: "Parse" },
-  { key: "match", hi: "मिलान", en: "Match" },
-  { key: "verify", hi: "जाँच", en: "Verify" },
-  { key: "report", hi: "रिपोर्ट", en: "Report" },
+  { key: "parse", hi: "Parse", en: "Read statements" },
+  { key: "match", hi: "Match", en: "Cross-check" },
+  { key: "verify", hi: "Verify", en: "Evidence" },
+  { key: "report", hi: "Report", en: "Summary" },
 ];
 
 const APPS: AppName[] = ["phonepe", "gpay", "paytm"];
@@ -72,7 +72,7 @@ function DropZone({
           </span>
         </div>
       ) : upload.status === "parsing" ? (
-        <p className="pulse-soft mt-1.5 text-[12px] text-muted-foreground">पढ़ा जा रहा है…</p>
+        <p className="pulse-soft mt-1.5 text-[12px] text-muted-foreground">Parsing…</p>
       ) : (
         <p className="mt-1.5 text-[12px] text-muted-foreground">Drop CSV / click to load</p>
       )}
@@ -149,20 +149,20 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
         </span>
       </div>
 
-      <h3 className="mt-2 text-[20px] leading-tight font-semibold">{finding.titleHi}</h3>
-      <p className="text-[13px] text-muted-foreground">{finding.titleEn}</p>
+      <h3 className="mt-2 text-[20px] leading-tight font-semibold">{finding.titleEn}</h3>
+      
 
-      <p className="mt-2 text-[14px]">{finding.detailHi}</p>
-      <p className="text-[13px] text-muted-foreground">{finding.detailEn}</p>
+      <p className="mt-2 text-[14px]">{finding.detailEn}</p>
+      
 
       <div className="mt-3">
         {verified ? (
           <span className="stamp-in inline-flex items-center gap-2 rounded-full bg-success px-3 py-1.5 text-[12px] font-semibold text-primary-foreground">
-            सत्यापित · verified against {cite.file} line {cite.line}
+            Verified against {cite.file} line {cite.line}
           </span>
         ) : (
           <span className="inline-flex -rotate-3 items-center rounded-full border border-dashed border-muted-foreground/60 px-3 py-1.5 text-[12px] text-muted-foreground">
-            जाँच हो रही है…
+            Verifying…
           </span>
         )}
       </div>
@@ -189,7 +189,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
       )}
 
       <p className="mt-3 text-[14px] font-semibold">
-        करना यह है → <span className="font-normal">{finding.action}</span>
+        What to do → <span className="font-normal">{finding.action}</span>
       </p>
     </article>
   );
@@ -204,9 +204,9 @@ export function ReportView({ readOnly = false }: { readOnly?: boolean }) {
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {[
-          { hi: "कुल लेन-देन", en: "Total transactions", v: String(SUMMARY.totalTx), tile: "bg-lilac/70" },
-          { hi: "मेल खाते", en: "Matched", v: String(SUMMARY.matched), tile: "bg-mint/70" },
-          { hi: "समस्याएँ", en: "Problems", v: String(SUMMARY.problems), tile: "bg-apricot/60" },
+          { hi: "Across three apps", en: "Total transactions", v: String(SUMMARY.totalTx), tile: "bg-lilac/70" },
+          { hi: "Rupee-for-rupee", en: "Matched", v: String(SUMMARY.matched), tile: "bg-mint/70" },
+          { hi: "Need your attention", en: "Problems", v: String(SUMMARY.problems), tile: "bg-apricot/60" },
         ].map((c) => (
           <div key={c.en} className={`rounded-2xl p-4 ${c.tile}`}>
             <p className="label-caps text-muted-foreground">{c.en}</p>
@@ -224,8 +224,8 @@ export function ReportView({ readOnly = false }: { readOnly?: boolean }) {
 
       <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card p-4">
         <p className="text-[16px]">
-          204 में से 201 मेल खाते हैं · 3 समस्याएँ ·{" "}
-          <span className="font-mono font-semibold">{formatPaise(SUMMARY.missingPaise)}</span> बकाया
+          201 of 204 transactions match · 3 problems ·{" "}
+          <span className="font-mono font-semibold">{formatPaise(SUMMARY.missingPaise)}</span> outstanding
         </p>
         {!readOnly && (
           <button
@@ -333,13 +333,13 @@ export function Workspace() {
             <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">ह</span>
           </div>
           <div>
-            <h1 className="font-display text-[22px] leading-tight font-bold">हिसाब</h1>
+            <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab</h1>
             <p className="label-caps text-muted-foreground">UPI Reconciliation</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             {allParsed && (
               <div className="rounded-full bg-lilac/70 px-4 py-2 text-[13px]">
-                आज का हिसाब · 18 July 2024 ·{" "}
+                Today's books · 18 July 2024 ·{" "}
                 <span className="font-mono font-semibold">{SUMMARY.totalTx}</span> transactions
               </div>
             )}
@@ -381,10 +381,11 @@ export function Workspace() {
                     ))}
                   </div>
                   <h2 className="font-display text-[34px] leading-tight font-bold">
-                    अपने तीन ऐप के स्टेटमेंट डालिए
+                    Drop your three app statements
                   </h2>
                   <p className="mt-3 text-[16px] text-muted-foreground">
-                    Drop your three app statements and your sales register. Hisaab matches every rupee.
+                    Add your PhonePe, Google Pay and Paytm exports plus your sales register. Hisaab
+                    matches every rupee.
                   </p>
                 </div>
               </div>
@@ -393,8 +394,8 @@ export function Workspace() {
             {state === "parsing" && (
               <div className="grid min-h-[420px] place-items-center rounded-2xl bg-card p-8 text-center">
                 <div>
-                  <h2 className="font-display text-[30px] font-bold">स्टेटमेंट पढ़े जा रहे हैं…</h2>
-                  <p className="mt-2 text-[15px] text-muted-foreground">Parsing your statements</p>
+                  <h2 className="font-display text-[30px] font-bold">Reading your statements…</h2>
+                  <p className="mt-2 text-[15px] text-muted-foreground">This takes a moment</p>
                   <div className="mt-6 flex justify-center gap-2">
                     {uploads.map((u) => (
                       <span
