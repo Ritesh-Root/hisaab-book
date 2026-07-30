@@ -31,10 +31,7 @@ function timeMs(iso: string): number {
  * Pass 2: amountPaise + |Δtime| ≤ 10 minutes
  * Each credit consumed at most once.
  */
-export function matchTxs(
-  register: CanonicalTx[],
-  credits: CanonicalTx[],
-): MatchResult {
+export function matchTxs(register: CanonicalTx[], credits: CanonicalTx[]): MatchResult {
   const matched: MatchPair[] = [];
   const usedCredits = new Set<number>();
   const usedRegister = new Set<number>();

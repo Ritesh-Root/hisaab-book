@@ -51,13 +51,41 @@ function fmtAmount(rupees: number): string {
 }
 
 const FIRST_NAMES = [
-  "Amit", "Priya", "Ravi", "Sunita", "Vikram", "Anita", "Raj", "Meena",
-  "Sanjay", "Pooja", "Arun", "Kavita", "Deepak", "Neha", "Manish", "Rekha",
-  "Suresh", "Geeta", "Mukesh", "Lata", "Ajay", "Seema", "Ramesh", "Savita",
+  "Amit",
+  "Priya",
+  "Ravi",
+  "Sunita",
+  "Vikram",
+  "Anita",
+  "Raj",
+  "Meena",
+  "Sanjay",
+  "Pooja",
+  "Arun",
+  "Kavita",
+  "Deepak",
+  "Neha",
+  "Manish",
+  "Rekha",
+  "Suresh",
+  "Geeta",
+  "Mukesh",
+  "Lata",
+  "Ajay",
+  "Seema",
+  "Ramesh",
+  "Savita",
 ];
 
 const VPA_SUFFIXES = [
-  "@oksbi", "@okhdfcbank", "@okicici", "@okaxis", "@ybl", "@ibl", "@apl", "@paytm",
+  "@oksbi",
+  "@okhdfcbank",
+  "@okicici",
+  "@okaxis",
+  "@ybl",
+  "@ibl",
+  "@apl",
+  "@paytm",
 ];
 
 // ─── Reserved UTRs ────────────────────────────────────────────────

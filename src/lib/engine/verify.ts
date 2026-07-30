@@ -54,9 +54,7 @@ export function verifyCandidate(
 
   const utrOk =
     !candidate.ctx.utrLast4 ||
-    candidate.evidence.some((e) =>
-      evidenceContainsUtr(e.raw, candidate.ctx.utrLast4 ?? ""),
-    );
+    candidate.evidence.some((e) => evidenceContainsUtr(e.raw, candidate.ctx.utrLast4 ?? ""));
 
   if (amountOk && utrOk) {
     return { ...candidate, verified: true };

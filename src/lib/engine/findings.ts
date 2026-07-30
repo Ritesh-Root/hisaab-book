@@ -86,9 +86,7 @@ function classifyMissing(
 /**
  * Classify: unsettled — a matched credit whose status === "pending".
  */
-function classifyUnsettled(
-  matched: MatchResult["matched"],
-): FindingCandidate[] {
+function classifyUnsettled(matched: MatchResult["matched"]): FindingCandidate[] {
   const candidates: FindingCandidate[] = [];
 
   for (const pair of matched) {
@@ -139,9 +137,7 @@ function classifyDuplicate(
     // Find the matching register row (if any)
     const sampleCredit = group[0];
     const regRow = registerTxs.find(
-      (r) =>
-        r.utrLast4 === sampleCredit.utrLast4 &&
-        r.amountPaise === sampleCredit.amountPaise,
+      (r) => r.utrLast4 === sampleCredit.utrLast4 && r.amountPaise === sampleCredit.amountPaise,
     );
 
     const evidence: EvidenceRow[] = [
@@ -185,11 +181,7 @@ export function classifyAll(
   registerTxs: CanonicalTx[],
   fileNames: Record<string, string>,
 ): FindingCandidate[] {
-  const missing = classifyMissing(
-    matchResult.unmatchedRegister,
-    creditsByApp,
-    fileNames,
-  );
+  const missing = classifyMissing(matchResult.unmatchedRegister, creditsByApp, fileNames);
 
   // Fix unsettled evidence file names (they were placeholder empty strings)
   const unsettled = classifyUnsettled(matchResult.matched).map((c) => {

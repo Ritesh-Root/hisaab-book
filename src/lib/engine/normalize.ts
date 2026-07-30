@@ -6,7 +6,10 @@ import type { CanonicalTx, ParsedFile } from "./types";
  * Normalize a header string for comparison: lowercase, trim, strip underscores/hyphens/spaces.
  */
 function normalizeHeader(h: string): string {
-  return h.toLowerCase().trim().replace(/[\s_-]+/g, "");
+  return h
+    .toLowerCase()
+    .trim()
+    .replace(/[\s_-]+/g, "");
 }
 
 /**
@@ -138,11 +141,7 @@ function normalizeStatus(raw: string): "settled" | "pending" {
 /**
  * Normalize a parsed CSV into CanonicalTx[] for a given app.
  */
-export function normalizeStatement(
-  parsed: ParsedCsv,
-  app: AppName,
-  fileName: string,
-): ParsedFile {
+export function normalizeStatement(parsed: ParsedCsv, app: AppName, fileName: string): ParsedFile {
   let colMap: ColMap;
   switch (app) {
     case "phonepe":

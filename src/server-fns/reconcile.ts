@@ -33,8 +33,7 @@ export const reconcileFiles = createServerFn({ method: "POST" })
       });
       return result;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unknown reconciliation error";
+      const message = err instanceof Error ? err.message : "Unknown reconciliation error";
       return { error: message };
     }
   });
