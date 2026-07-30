@@ -56,6 +56,11 @@ describe("reconcile pipeline", () => {
     // Ticker = all credits
     expect(result.ticker.length).toBe(204);
 
+    // Flag UTRs: unsettled (...2210) and duplicate (...5517) rows get flagged;
+    // missing (...8842) has no credit row but may still be listed.
+    expect(result.flagUtrs).toContain("2210");
+    expect(result.flagUtrs).toContain("5517");
+
     // Parsed counts
     expect(result.parsedCounts.phonepe).toBe(82);
     expect(result.parsedCounts.gpay).toBe(74);

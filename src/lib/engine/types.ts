@@ -24,6 +24,8 @@ export interface ReconciliationResult {
   summary: Summary;
   findings: Finding[];
   ticker: import("@/lib/hisaab/types").TxRow[];
+  /** UTR last-4s involved in verified findings — the UI flags these ticker rows. */
+  flagUtrs: string[];
   parsedCounts: Record<AppName, number>;
   registerCount: number;
 }

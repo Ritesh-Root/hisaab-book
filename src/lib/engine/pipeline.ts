@@ -66,11 +66,7 @@ export async function reconcile(
   };
 
   // All credits across all statements
-  const allCredits: CanonicalTx[] = [
-    ...phonepeFile.txs,
-    ...gpayFile.txs,
-    ...paytmFile.txs,
-  ];
+  const allCredits: CanonicalTx[] = [...phonepeFile.txs, ...gpayFile.txs, ...paytmFile.txs];
 
   const creditsByApp: Record<string, CanonicalTx[]> = {
     phonepe: phonepeFile.txs,
@@ -124,9 +120,7 @@ export async function reconcile(
 
   // ─── 8. Build summary ─────────────────────────────────────────────
   const totalTx = allCredits.length;
-  const matchedSettled = matchResult.matched.filter(
-    (m) => m.credit.status === "settled",
-  ).length;
+  const matchedSettled = matchResult.matched.filter((m) => m.credit.status === "settled").length;
   const missingPaise = findings
     .filter((f) => f.kind === "missing" && f.verified)
     .reduce((sum, f) => sum + f.amountPaise, 0);
@@ -161,10 +155,16 @@ export async function reconcile(
     paytm: paytmFile.txs.length,
   };
 
+  // UTRs involved in verified findings (drives ticker flags in the UI)
+  const flagUtrs = [
+    ...new Set(verified.map((c) => c.ctx.utrLast4).filter((u): u is string => Boolean(u))),
+  ];
+
   return {
     summary,
     findings,
     ticker,
+    flagUtrs,
     parsedCounts,
     registerCount: registerFile.txs.length,
   };
