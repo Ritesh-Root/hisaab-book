@@ -330,7 +330,7 @@ export function Workspace() {
         {/* header */}
         <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-5 py-3">
           <div className="grid size-11 place-items-center rounded-2xl bg-primary">
-            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">ह</span>
+            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">H</span>
           </div>
           <div>
             <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab</h1>

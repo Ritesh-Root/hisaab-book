@@ -25,7 +25,7 @@ function ReportPage() {
       <div className="mx-auto max-w-[900px] overflow-hidden rounded-[28px] bg-background shadow-[0_24px_60px_-24px_oklch(0.4_0.12_300_/_0.45)]">
         <header className="flex items-center gap-3 border-b border-border bg-card px-5 py-3">
           <div className="grid size-11 place-items-center rounded-2xl bg-primary">
-            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">ह</span>
+            <span className="font-display text-[20px] leading-none font-bold text-primary-foreground">H</span>
           </div>
           <div>
             <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab report</h1>
