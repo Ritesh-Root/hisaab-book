@@ -27,9 +27,10 @@ flowchart LR
 
 ## Data flow
 
-1. Client reads CSV files (user uploads or `/samples/*`) as text.
-2. `reconcileFiles` validates with zod (4 strings, 2MB each) and calls
-   `pipeline.reconcile`.
+1. Client reads CSV files (user uploads or `/samples/*`) as text and preserves
+   each filename for evidence citations.
+2. `reconcileFiles` validates with zod (4 strings capped at 2MB each and
+   optional display names capped at 255 characters) and calls `pipeline.reconcile`.
 3. Pipeline: parse → normalize → match → classify → verify → summarize →
    ticker → (optional enrich). Output is the frozen UI contract from
    `src/lib/hisaab/types.ts`.

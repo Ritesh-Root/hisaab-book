@@ -13,12 +13,12 @@ tracked files, generated client assets, and local Vercel metadata.
 | Non-empty API key in local Vercel environment | None found. The value was not printed. |
 | Vercel metadata and local env files | Ignored by `.gitignore`; neither is tracked. |
 | Client bundle exposure | No `OPENAI_API_KEY`, OpenAI bearer header, or OpenAI API URL in `.output/public` or `.vercel/output/static`. |
-| Server input boundary | `reconcileFiles` uses Zod and caps each of four CSV strings at 2 MB. |
+| Server input boundary | `reconcileFiles` uses Zod, caps each of four CSV strings at 2 MB, and caps optional display names at 255 characters. |
 | Cross-site server function requests | TanStack Start CSRF middleware is enabled for server functions. |
 | Optional model credential boundary | The key is read only in `src/lib/engine/llm.ts`, which is included in the server output, not the public assets. |
 | Persistence | No database, file-write path, browser storage, or upload storage was found in the application code. |
 | Evidence integrity | The verification gate now requires amount and UTR to appear on the same cited raw row. |
-| Test and build checks | 15 tests pass; Vercel-targeted build passes; lint has 0 errors. |
+| Test and build checks | 16 tests pass; Vercel-targeted build passes; lint has 0 errors. |
 | Signed-out production smoke | Vercel home and `/report/demo` returned successfully; the sample flow produced 204 transactions, 201 matched, and 3 findings. |
 
 Commands used included:

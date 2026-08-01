@@ -50,7 +50,7 @@ total.
 
 ## 1:55–2:15 — Prove the evidence
 
-**Show:** Expand the evidence drawers and verification stamps.
+**Show:** Click `View raw evidence` on each finding and show the verification stamps.
 
 **Say:**
 

@@ -10,6 +10,14 @@ const reconcileInputSchema = z.object({
   gpay: z.string().max(MAX_FILE_SIZE),
   paytm: z.string().max(MAX_FILE_SIZE),
   register: z.string().max(MAX_FILE_SIZE),
+  fileNames: z
+    .object({
+      phonepe: z.string().trim().min(1).max(255).optional(),
+      gpay: z.string().trim().min(1).max(255).optional(),
+      paytm: z.string().trim().min(1).max(255).optional(),
+      register: z.string().trim().min(1).max(255).optional(),
+    })
+    .optional(),
 });
 
 export type ReconcileSuccess = ReconciliationResult;
@@ -30,6 +38,7 @@ export const reconcileFiles = createServerFn({ method: "POST" })
         gpay: data.gpay,
         paytm: data.paytm,
         register: data.register,
+        fileNames: data.fileNames,
       });
       return result;
     } catch (err) {

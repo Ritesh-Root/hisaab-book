@@ -2,7 +2,7 @@
 
 Cold-start context for the next session. Deadline: **Aug 3, 2026, 11:59 PM**.
 
-## State: engine + UI wired, pushed, and live
+## State: polished release ready for final submission gates
 
 Completed:
 - Reconciliation engine (`src/lib/engine/`): parse → normalize → match →
@@ -14,14 +14,18 @@ Completed:
 - UI wired to the live pipeline: real CSV uploads, one-click sample demo,
   ticker/flags/counter replay the real result, report page reconciles
   server-side. Mock deleted — one data path.
-- 15 vitest tests green · Vercel-targeted build green · lint 0 errors (6
+- 16 vitest tests green · Vercel-targeted build green · lint 0 errors (6
   pre-existing shadcn warnings) · SSR smoke-tested (root + /report/demo, both
   200 with full markup).
 - Docs: README (judges), AGENTS.md (Codex), docs/project/{ARCHITECTURE,
   TECH_DECISIONS, SUBMISSION, SECURITY_REVIEW}.md, .env.example.
 - Submission hardening: malformed CSVs are rejected, the evidence gate requires
   amount and UTR on the same raw row, the animated total is labelled as flagged
-  money, and `vercel.json` selects the Vercel Nitro preset.
+  money, uploaded filenames are preserved in evidence citations, and
+  `vercel.json` selects the Vercel Nitro preset.
+- Judge-facing polish: evidence is opened with an explicit keyboard-accessible
+  control, the report separates ₹4,200 flagged value from ₹1,850 missing value,
+  sample-only links are labelled clearly, and the bilingual labels are corrected.
 
 Verification state: the application hardening commit is on `main`; `main` is
 pushed to GitHub and production is live at
@@ -29,35 +33,38 @@ pushed to GitHub and production is live at
 
 ## Pending (in order)
 
-1. **Keep the Vercel release warm** (owner: Ritesh + release-manager). Public
-  link is live with no credentials. Set up a keep-alive ping (cron-job.org,
-  every 5 min) for the judging window.
-2. **Optional**: `OPENAI_API_KEY` in Vercel env + flip `enrich: true` in the
-   reconcile call if the enrichment layer should run live. Demo works without.
-3. **Use it yourself** (hard rule): run the demo flow 5+ times, drop odd CSVs
-   at it, feel the friction, fix. An outsider must touch it before submission.
-4. **3-min demo video**: use `docs/project/VIDEO_SCRIPT.md`. Show the real
+1. **Verify and publish the polished release**. The public app must still open
+  signed out and the sample flow must show 204 transactions, 201 matched, 3
+  findings, and ₹4,200 flagged value.
+2. **Use it yourself** (hard rule): run the demo flow 5+ times, drop odd CSVs
+  at it, feel the friction, fix. An outsider must touch it before submission.
+3. **3-min demo video**: use `docs/project/VIDEO_SCRIPT.md`. Show the real
   frustration hook, sample run, ₹4,200 flagged total, evidence stamps, and
   factual Codex history. Record Aug 2 and keep the final cut below three
   minutes.
-5. **Submission pack**: the project-description Google Doc is drafted at
+4. **Submission pack**: the project-description Google Doc is drafted at
   `https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit`,
   but it still needs "Anyone with the link can view" access. Then record the
   video and complete the BlockseBlock final submit by Aug 2 night, never at
   the deadline minute.
 
+Do not enable the optional LLM layer just to make the demo look more agentic.
+The deterministic pipeline is the stronger reliability story, and the sample
+run does not need an API key.
+
 ## Codex-attribution plan (hackathon rule: "built primarily with OpenAI Codex")
 
-Frontend = Lovable, engine/wiring designed in Claude sessions. To make the
-commit history and video tell the required story: run the next extension tasks
-(schema-agent hardening, more tests, deploy fixes) through Codex sessions so
-the pushed history shows Codex as the builder, and record those sessions for
-the video's Codex-usage segment.
+Frontend = Lovable, engine/wiring designed in Claude sessions. The final
+hardening, filename-citation fix, regression test, judge-facing polish, release
+checks, and security review were completed in Codex. Disclose that split
+plainly in the video and project document. Do not rewrite history or claim that
+Codex authored the earlier scaffold.
 
 ## Risks
 
-- Vercel cold starts during judging → keep-alive ping.
-- Rate limits if Codex Plus is tight → Pro 5× for the build window.
+- Vercel cold starts during judging → verify the public flow shortly before
+  submission; do not add infrastructure without evidence of a problem.
+- Rate limits if Codex Plus is tight → keep the final submission path small.
 - Lovable sync: append-only history, no rewrites (AGENTS.md).
 
 ## Key files

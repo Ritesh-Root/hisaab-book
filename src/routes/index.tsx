@@ -8,12 +8,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Hisaab reconciles PhonePe, Google Pay and Paytm statements against your sales register and shows every missing rupee.",
+          "Hisaab reconciles PhonePe, Google Pay and Paytm statements against your sales register and shows the raw rows behind every finding.",
       },
       { property: "og:title", content: "Hisaab — UPI Reconciliation Workspace" },
       {
         property: "og:description",
-        content: "Match every rupee across PhonePe, GPay and Paytm in seconds.",
+        content:
+          "Find missing, unsettled, and duplicate UPI payments across PhonePe, Google Pay, and Paytm.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

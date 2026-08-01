@@ -22,10 +22,10 @@ Businesses.
    - the exact amount and what happened,
    - a **verified** stamp — every claim was re-checked against the raw
      statement rows before it was allowed into the report,
-   - the cited CSV rows (hover a card to see them),
+   - the cited CSV rows (click **View raw evidence** to see them),
    - the next action: *raise the dispute here, call this support line, watch
      tomorrow's statement*.
-5. **Copy Report Link** → a read-only sample report page anyone can open.
+5. **Copy sample report link** → a read-only sample report page anyone can open.
 
 ## How it works
 

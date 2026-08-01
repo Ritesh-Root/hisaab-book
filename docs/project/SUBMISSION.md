@@ -140,7 +140,7 @@ limit.
 | 0:15 to 0:30 | Load the sample statements | Real CSV files and parsed counts |
 | 0:30 to 1:15 | Let the matching sweep run | 204 rows, flagged rows, money flagged reaching ₹4,200 |
 | 1:15 to 1:55 | Open the three findings | ₹1,850 missing, ₹1,500 pending, ₹850 duplicate |
-| 1:55 to 2:15 | Expand evidence | File names, 1-based line numbers, raw rows, verified stamps |
+| 1:55 to 2:15 | Open raw evidence | File names, 1-based line numbers, raw rows, verified stamps |
 | 2:15 to 2:35 | Show the architecture | Parse, normalize, match, classify, verify, report |
 | 2:35 to 2:48 | Show Codex usage | Real planning, implementation, test, and review evidence |
 | 2:48 to 2:55 | Close | Public app, GitHub repo, and project document links |
@@ -178,7 +178,7 @@ same until the form is visible.
 
 ### Local
 
-- [x] `bun run test` passes: 15 tests
+- [x] `bun run test` passes: 16 tests
 - [x] `NITRO_PRESET=vercel bun run build` passes
 - [x] `bun run lint` has 0 errors
 - [x] Add and push the Codex hardening commit (`1ef0816`)

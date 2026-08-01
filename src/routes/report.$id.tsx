@@ -8,16 +8,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/report/$id")({
   head: () => ({
     meta: [
-      { title: "Hisaab reconciliation report" },
+      { title: "Hisaab sample reconciliation report" },
       {
         name: "description",
         content:
-          "Read-only Hisaab reconciliation report: matched transactions, problems and missing money.",
+          "Read-only Hisaab sample report with matched transactions, flagged value, and raw evidence.",
       },
-      { property: "og:title", content: "Hisaab reconciliation report" },
+      { property: "og:title", content: "Hisaab sample reconciliation report" },
       {
         property: "og:description",
-        content: "Shared read-only UPI reconciliation report.",
+        content: "Shared read-only sample UPI reconciliation report.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -50,6 +50,12 @@ function ReportPage() {
             gpay: texts[1],
             paytm: texts[2],
             register: texts[3],
+            fileNames: {
+              phonepe: "phonepe_july.csv",
+              gpay: "gpay_july.csv",
+              paytm: "paytm_july.csv",
+              register: "register.csv",
+            },
           },
         });
         if (cancelled) return;
@@ -82,8 +88,10 @@ function ReportPage() {
             </span>
           </div>
           <div>
-            <h1 className="font-display text-[22px] leading-tight font-bold">Hisaab report</h1>
-            <p className="label-caps text-muted-foreground">Read-only · {id}</p>
+            <h1 className="font-display text-[22px] leading-tight font-bold">
+              Hisaab sample report
+            </h1>
+            <p className="label-caps text-muted-foreground">Read-only sample · {id}</p>
           </div>
           <Link
             to="/"

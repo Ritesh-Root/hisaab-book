@@ -66,4 +66,29 @@ describe("reconcile pipeline", () => {
     expect(result.parsedCounts.gpay).toBe(74);
     expect(result.parsedCounts.paytm).toBe(48);
   });
+
+  it("preserves caller filenames in evidence citations", async () => {
+    const result = await reconcile({
+      phonepe: loadFile("phonepe_july.csv"),
+      gpay: loadFile("gpay_july.csv"),
+      paytm: loadFile("paytm_july.csv"),
+      register: loadFile("register.csv"),
+      fileNames: {
+        phonepe: "merchant-phonepe-export.csv",
+        gpay: "merchant-gpay-export.csv",
+        paytm: "merchant-paytm-export.csv",
+        register: "merchant-register.csv",
+      },
+    });
+
+    expect(result.findings[0].evidence[0].file).toBe("merchant-register.csv");
+    expect(result.findings[1].evidence[0].file).toBe("merchant-gpay-export.csv");
+    expect(result.findings[2].evidence.every((row) => row.file !== "paytm_july.csv")).toBe(true);
+    expect(result.findings[2].evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ file: "merchant-paytm-export.csv" }),
+        expect.objectContaining({ file: "merchant-register.csv" }),
+      ]),
+    );
+  });
 });

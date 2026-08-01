@@ -13,6 +13,7 @@ export interface ReconcileInputs {
   gpay: string;
   paytm: string;
   register: string;
+  fileNames?: Partial<Record<AppName | "register", string>>;
 }
 
 export interface ReconcileOpts {
@@ -53,10 +54,19 @@ export async function reconcile(
   const registerParsed = parseCsv(inputs.register);
 
   // ─── 2. Normalize ─────────────────────────────────────────────────
-  const phonepeFile = normalizeStatement(phonepeParsed, "phonepe", "phonepe_july.csv");
-  const gpayFile = normalizeStatement(gpayParsed, "gpay", "gpay_july.csv");
-  const paytmFile = normalizeStatement(paytmParsed, "paytm", "paytm_july.csv");
-  const registerFile = normalizeRegister(registerParsed, "register.csv");
+  const inputFileNames = inputs.fileNames ?? {};
+  const phonepeFile = normalizeStatement(
+    phonepeParsed,
+    "phonepe",
+    inputFileNames.phonepe ?? "phonepe_july.csv",
+  );
+  const gpayFile = normalizeStatement(gpayParsed, "gpay", inputFileNames.gpay ?? "gpay_july.csv");
+  const paytmFile = normalizeStatement(
+    paytmParsed,
+    "paytm",
+    inputFileNames.paytm ?? "paytm_july.csv",
+  );
+  const registerFile = normalizeRegister(registerParsed, inputFileNames.register ?? "register.csv");
 
   const fileNames: Record<string, string> = {
     phonepe: phonepeFile.fileName,

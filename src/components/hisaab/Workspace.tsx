@@ -14,21 +14,29 @@ import type {
 } from "@/lib/hisaab/types";
 
 const STAGES: { key: Stage; hi: string; en: string }[] = [
-  { key: "parse", hi: "Parse", en: "Read statements" },
-  { key: "match", hi: "Match", en: "Cross-check" },
-  { key: "verify", hi: "Verify", en: "Evidence" },
-  { key: "report", hi: "Report", en: "Summary" },
+  { key: "parse", hi: "पढ़ें", en: "Read statements" },
+  { key: "match", hi: "मिलान", en: "Cross-check" },
+  { key: "verify", hi: "जाँच", en: "Evidence" },
+  { key: "report", hi: "रिपोर्ट", en: "Summary" },
 ];
 
 const APPS: AppName[] = ["phonepe", "gpay", "paytm"];
 
 type FileKey = AppName | "register";
+type FileInput = { text: string; fileName: string };
 
 const SAMPLE_PATHS: Record<FileKey, string> = {
   phonepe: "/samples/phonepe_july.csv",
   gpay: "/samples/gpay_july.csv",
   paytm: "/samples/paytm_july.csv",
   register: "/samples/register.csv",
+};
+
+const SAMPLE_FILE_NAMES: Record<FileKey, string> = {
+  phonepe: "phonepe_july.csv",
+  gpay: "gpay_july.csv",
+  paytm: "paytm_july.csv",
+  register: "register.csv",
 };
 
 const UPLOAD_SEED: Upload[] = [
@@ -54,6 +62,7 @@ function DropZone({
   dot,
   status,
   txCount,
+  fileName,
   hint,
   onFile,
 }: {
@@ -61,6 +70,7 @@ function DropZone({
   dot?: AppName;
   status: UploadStatus;
   txCount?: number;
+  fileName?: string;
   hint: string;
   onFile: (text: string, fileName: string) => void;
 }) {
@@ -124,6 +134,7 @@ function DropZone({
             ✓
           </span>
           <span className="font-mono text-[12px] text-success">
+            {fileName ? `${fileName} · ` : ""}
             {txCount ?? 0} transactions parsed
           </span>
         </div>
@@ -184,6 +195,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
   const [open, setOpen] = useState(false);
   const style = KIND_STYLE[finding.kind];
   const cite = finding.evidence[0];
+  const evidenceId = `evidence-${finding.id}`;
 
   useEffect(() => {
     const t = setTimeout(() => setVerified(true), 600 + index * 350);
@@ -191,16 +203,7 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
   }, [index]);
 
   return (
-    <article
-      tabIndex={0}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onClick={() => setOpen((v) => !v)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") setOpen((v) => !v);
-      }}
-      className={`rounded-2xl p-4 outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring ${style.tile}`}
-    >
+    <article className={`rounded-2xl p-4 ${style.tile}`}>
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-mono text-[24px] font-semibold tabular-nums">
           {formatPaise(finding.amountPaise)}
@@ -229,8 +232,23 @@ export function FindingCard({ finding, index }: { finding: Finding; index: numbe
         )}
       </div>
 
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={evidenceId}
+        onClick={() => setOpen((v) => !v)}
+        className="mt-3 rounded-full text-[13px] font-semibold text-primary underline decoration-primary/40 underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {open ? "Hide raw evidence ↑" : "View raw evidence ↓"}
+      </button>
+
       {open && (
-        <div className="row-in mt-3 overflow-hidden rounded-xl bg-card">
+        <div
+          id={evidenceId}
+          role="region"
+          aria-label={`Raw evidence for ${finding.titleEn}`}
+          className="row-in mt-3 overflow-hidden rounded-xl bg-card"
+        >
           {finding.evidence.map((row, i) => (
             <div
               key={`${row.file}-${row.line}`}
@@ -269,32 +287,43 @@ export function ReportView({
   readOnly?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
+  const flaggedPaise = findings.reduce((sum, finding) => sum + finding.amountPaise, 0);
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
-            hi: "Across three apps",
+            hi: "तीनों ऐप्स से",
             en: "Total transactions",
             v: String(summary.totalTx),
             tile: "bg-lilac/70",
           },
-          { hi: "Rupee-for-rupee", en: "Matched", v: String(summary.matched), tile: "bg-mint/70" },
+          { hi: "मिलान हुआ", en: "Matched", v: String(summary.matched), tile: "bg-mint/70" },
           {
-            hi: "Need your attention",
+            hi: "ध्यान दें",
             en: "Problems",
             v: String(summary.problems),
             tile: "bg-apricot/60",
           },
+          {
+            hi: "लापता · लंबित · डुप्लिकेट",
+            en: "Flagged value",
+            v: formatPaise(flaggedPaise),
+            tile: "bg-blossom/55",
+          },
         ].map((c) => (
           <div key={c.en} className={`rounded-2xl p-4 ${c.tile}`}>
             <p className="label-caps text-muted-foreground">{c.en}</p>
-            <p className="font-mono text-[32px] leading-tight font-semibold tabular-nums">{c.v}</p>
+            <p className="font-mono text-[30px] leading-tight font-semibold tabular-nums">{c.v}</p>
             <p className="text-[13px]">{c.hi}</p>
           </div>
         ))}
       </div>
+
+      <p className="rounded-xl bg-card px-4 py-3 text-[14px] text-muted-foreground">
+        Every finding below passed the evidence check. Open a card to inspect its raw CSV rows.
+      </p>
 
       <div className="space-y-3">
         {findings.map((f, i) => (
@@ -305,8 +334,9 @@ export function ReportView({
       <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-card p-4">
         <p className="text-[16px]">
           {summary.matched} of {summary.totalTx} transactions match · {summary.problems} problems ·{" "}
+          <span className="font-mono font-semibold">{formatPaise(flaggedPaise)}</span> flagged ·{" "}
           <span className="font-mono font-semibold">{formatPaise(summary.missingPaise)}</span>{" "}
-          outstanding
+          missing
         </p>
         {!readOnly && (
           <button
@@ -319,7 +349,7 @@ export function ReportView({
             }}
             className="ml-auto rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            {copied ? "Link copied ✓" : "Copy Report Link"}
+            {copied ? "Sample link copied ✓" : "Copy sample report link"}
           </button>
         )}
       </div>
@@ -330,10 +360,11 @@ export function ReportView({
 /* ------------------------------- workspace -------------------------------- */
 
 export function Workspace() {
-  const [files, setFiles] = useState<Partial<Record<FileKey, string>>>({});
+  const [files, setFiles] = useState<Partial<Record<FileKey, FileInput>>>({});
   const [uploads, setUploads] = useState<Upload[]>(UPLOAD_SEED);
   const [registerStatus, setRegisterStatus] = useState<UploadStatus>("idle");
   const [registerCount, setRegisterCount] = useState<number>(0);
+  const [registerFileName, setRegisterFileName] = useState<string>();
   const [state, setState] = useState<DemoState>("empty");
   const [result, setResult] = useState<ReconciliationResult | null>(null);
   const [visible, setVisible] = useState(0);
@@ -351,10 +382,12 @@ export function Workspace() {
     timers.current.push(setTimeout(fn, ms));
   };
 
-  function setFile(key: FileKey, text: string) {
-    setFiles((prev) => ({ ...prev, [key]: text }));
+  function setFile(key: FileKey, text: string, fileName: string) {
+    const resolvedFileName = fileName.trim() || SAMPLE_FILE_NAMES[key];
+    setFiles((prev) => ({ ...prev, [key]: { text, fileName: resolvedFileName } }));
     if (key === "register") {
       setRegisterStatus("parsing");
+      setRegisterFileName(resolvedFileName);
       push(() => {
         setRegisterStatus("parsed");
         setRegisterCount(countRows(text));
@@ -365,7 +398,7 @@ export function Workspace() {
         setUploads((prev) =>
           prev.map((u) =>
             u.app === key
-              ? { ...u, status: "parsed", fileName: `${key}_july.csv`, txCount: countRows(text) }
+              ? { ...u, status: "parsed", fileName: resolvedFileName, txCount: countRows(text) }
               : u,
           ),
         );
@@ -373,11 +406,17 @@ export function Workspace() {
     }
   }
 
-  async function loadSampleTexts(keys: FileKey[]): Promise<Record<string, string>> {
+  async function loadSampleTexts(keys: FileKey[]): Promise<Partial<Record<FileKey, FileInput>>> {
     const entries = await Promise.all(
-      keys.map(async (k) => [k, await (await fetch(SAMPLE_PATHS[k])).text()] as const),
+      keys.map(
+        async (k) =>
+          [
+            k,
+            { text: await (await fetch(SAMPLE_PATHS[k])).text(), fileName: SAMPLE_FILE_NAMES[k] },
+          ] as const,
+      ),
     );
-    return Object.fromEntries(entries);
+    return Object.fromEntries(entries) as Partial<Record<FileKey, FileInput>>;
   }
 
   async function startFlow() {
@@ -387,22 +426,22 @@ export function Workspace() {
     setFlaggedTotal(0);
 
     // Resolve inputs: user files win; samples fill any gap.
-    const haveApps = APPS.every((a) => files[a]);
-    let inputs: Record<FileKey, string>;
-    if (haveApps && files.register) {
+    const haveApps = APPS.every((a) => Boolean(files[a]?.text));
+    let inputs: Record<FileKey, FileInput>;
+    if (haveApps && files.register?.text) {
       inputs = {
         phonepe: files.phonepe!,
         gpay: files.gpay!,
         paytm: files.paytm!,
-        register: files.register,
+        register: files.register!,
       };
     } else {
       const needed = [
-        ...APPS.filter((a) => !files[a]),
-        ...(files.register ? [] : ["register" as const]),
+        ...APPS.filter((a) => !files[a]?.text),
+        ...(files.register?.text ? [] : ["register" as const]),
       ];
       const sampled = await loadSampleTexts(needed);
-      const merged = { ...files, ...sampled } as Record<FileKey, string>;
+      const merged = { ...files, ...sampled } as Record<FileKey, FileInput>;
       setFiles(merged);
       inputs = merged;
     }
@@ -410,14 +449,12 @@ export function Workspace() {
     // Staged "parsed" animation over the real texts.
     setState("parsing");
     APPS.forEach((app, i) => {
-      const text = inputs[app];
+      const { text, fileName } = inputs[app];
       push(
         () => {
           setUploads((prev) =>
             prev.map((u) =>
-              u.app === app
-                ? { ...u, status: "parsed", fileName: `${app}_july.csv`, txCount: countRows(text) }
-                : u,
+              u.app === app ? { ...u, status: "parsed", fileName, txCount: countRows(text) } : u,
             ),
           );
         },
@@ -427,7 +464,8 @@ export function Workspace() {
     push(
       () => {
         setRegisterStatus("parsed");
-        setRegisterCount(countRows(inputs.register));
+        setRegisterFileName(inputs.register.fileName);
+        setRegisterCount(countRows(inputs.register.text));
       },
       350 + 3 * 300,
     );
@@ -436,10 +474,16 @@ export function Workspace() {
     try {
       const res = await reconcileFiles({
         data: {
-          phonepe: inputs.phonepe,
-          gpay: inputs.gpay,
-          paytm: inputs.paytm,
-          register: inputs.register,
+          phonepe: inputs.phonepe.text,
+          gpay: inputs.gpay.text,
+          paytm: inputs.paytm.text,
+          register: inputs.register.text,
+          fileNames: {
+            phonepe: inputs.phonepe.fileName,
+            gpay: inputs.gpay.fileName,
+            paytm: inputs.paytm.fileName,
+            register: inputs.register.fileName,
+          },
         },
       });
       if ("error" in res) {
@@ -530,8 +574,8 @@ export function Workspace() {
           <div className="ml-auto flex items-center gap-3">
             {allParsed && (
               <div className="rounded-full bg-lilac/70 px-4 py-2 text-[13px]">
-                Today's books · 18 July 2024 ·{" "}
-                <span className="font-mono font-semibold">{totalTx || "—"}</span> transactions
+                Review ready · <span className="font-mono font-semibold">{totalTx || "—"}</span>{" "}
+                transactions
               </div>
             )}
             <button
@@ -557,16 +601,18 @@ export function Workspace() {
                     dot={u.app}
                     status={u.status}
                     txCount={u.txCount}
+                    fileName={u.fileName}
                     hint="Drop CSV / click to load"
-                    onFile={(text) => setFile(u.app, text)}
+                    onFile={(text, fileName) => setFile(u.app, text, fileName)}
                   />
                 ))}
                 <DropZone
                   label="Sales register"
                   status={registerStatus}
                   txCount={registerCount}
-                  hint="Optional — sample used if empty"
-                  onFile={(text) => setFile("register", text)}
+                  fileName={registerFileName}
+                  hint="Optional. Sample used if empty."
+                  onFile={(text, fileName) => setFile("register", text, fileName)}
                 />
               </div>
             </div>
@@ -591,7 +637,7 @@ export function Workspace() {
                   </h2>
                   <p className="mt-3 text-[16px] text-muted-foreground">
                     Add your PhonePe, Google Pay and Paytm exports plus your sales register. Hisaab
-                    matches every rupee.
+                    checks payments against your register and flags exceptions.
                   </p>
                   <button
                     type="button"
