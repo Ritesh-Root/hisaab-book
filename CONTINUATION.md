@@ -36,8 +36,10 @@ pushed to GitHub and production is live at
    reconcile call if the enrichment layer should run live. Demo works without.
 3. **Use it yourself** (hard rule): run the demo flow 5+ times, drop odd CSVs
    at it, feel the friction, fix. An outsider must touch it before submission.
-4. **3-min demo video**: frustration hook (2 h/night by eye) → live Codex task
-   → the ₹4,200 moment → evidence stamps. Record Aug 2, script via /humanizer.
+4. **3-min demo video**: use `docs/project/VIDEO_SCRIPT.md`. Show the real
+  frustration hook, sample run, ₹4,200 flagged total, evidence stamps, and
+  factual Codex history. Record Aug 2 and keep the final cut below three
+  minutes.
 5. **Submission pack**: the project-description Google Doc is drafted at
   `https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit`,
   but it still needs "Anyone with the link can view" access. Then record the

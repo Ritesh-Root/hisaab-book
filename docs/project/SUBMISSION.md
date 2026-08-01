@@ -129,7 +129,9 @@ demo unless it is explicitly enabled and its data-sharing trade-off is tested.
 
 ## Three-minute video plan
 
-Target length: 2:40 to 2:50. Keep at least ten seconds below the three-minute
+The full spoken script is in [VIDEO_SCRIPT.md](./VIDEO_SCRIPT.md).
+
+Target length: 2:45 to 2:55. Keep at least five seconds below the three-minute
 limit.
 
 | Time | Shot | Proof to show |
