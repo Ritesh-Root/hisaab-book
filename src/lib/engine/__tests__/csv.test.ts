@@ -24,6 +24,12 @@ describe("parseCsv", () => {
     expect(result.rows[0].values).toEqual(['she said "hello" to me']);
   });
 
+  it("rejects an unterminated quoted field", () => {
+    expect(() => parseCsv('name,description\nAlice,"missing closing quote')).toThrow(
+      "unterminated quoted field",
+    );
+  });
+
   it("handles CRLF line endings", () => {
     const csv = "a,b\r\n1,2\r\n3,4";
     const result = parseCsv(csv);

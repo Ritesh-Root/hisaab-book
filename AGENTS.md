@@ -23,6 +23,7 @@ duplicate rupee — with evidence, verified before publication.
 bun install          # install
 bun run dev          # dev server (port 8080)
 bun run build        # production build (Vite + nitro)
+NITRO_PRESET=vercel bun run build  # Vercel-compatible production output
 bun run test         # vitest — engine tests, must stay green
 bun run lint         # eslint (0 errors required)
 bun run format       # prettier

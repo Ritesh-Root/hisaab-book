@@ -73,6 +73,20 @@ describe("verifyCandidate", () => {
     expect(result).toBeNull();
   });
 
+  it("drops a candidate when amount and UTR are split across evidence rows", () => {
+    const candidate: FindingCandidate = {
+      kind: "missing",
+      amountPaise: 185000,
+      evidence: [
+        { file: "register.csv", line: 142, raw: "142,2024-07-18,1850.00,UPI,PHONEPE,9999" },
+        { file: "phonepe.csv", line: 96, raw: "PP100095,2024-07-18,620.00,CREDIT,SETTLED,8842" },
+      ],
+      ctx: { app: "phonepe", utrLast4: "8842" },
+    };
+
+    expect(verifyCandidate(candidate)).toBeNull();
+  });
+
   it("passes when amount uses comma-formatted rupees", () => {
     const candidate: FindingCandidate = {
       kind: "unsettled",

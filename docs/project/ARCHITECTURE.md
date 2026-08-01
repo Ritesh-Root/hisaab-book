@@ -49,6 +49,6 @@ flowchart LR
 
 ## Deploy
 
-Vercel (nitro vercel preset). `OPENAI_API_KEY` optional env var for the
-enrichment layer. A keep-alive ping during the judging window prevents cold
-starts on the demo path.
+Vercel (Nitro Vercel preset, selected by `vercel.json`). `OPENAI_API_KEY` is an
+optional env var for the enrichment layer. A keep-alive ping during the judging
+window prevents cold starts on the demo path.

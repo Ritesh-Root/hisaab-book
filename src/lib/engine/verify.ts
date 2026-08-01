@@ -39,8 +39,8 @@ function evidenceContainsUtr(raw: string, utrLast4: string): boolean {
 }
 
 /**
- * Verify a candidate finding: at least one evidence row must contain the claimed
- * amount, and if a UTR last-4 is claimed, at least one row must contain it.
+ * Verify a candidate finding: one evidence row must contain the claimed amount
+ * and, when present, the claimed UTR last-4.
  *
  * This is the GATE — candidates failing this check are DROPPED, never published.
  * Returns the candidate with verified=true if it passes, or null if it fails.
@@ -48,15 +48,13 @@ function evidenceContainsUtr(raw: string, utrLast4: string): boolean {
 export function verifyCandidate(
   candidate: FindingCandidate,
 ): (FindingCandidate & { verified: true }) | null {
-  const amountOk = candidate.evidence.some((e) =>
-    evidenceContainsAmount(e.raw, candidate.amountPaise),
+  const supportedByOneRow = candidate.evidence.some(
+    (e) =>
+      evidenceContainsAmount(e.raw, candidate.amountPaise) &&
+      (!candidate.ctx.utrLast4 || evidenceContainsUtr(e.raw, candidate.ctx.utrLast4)),
   );
 
-  const utrOk =
-    !candidate.ctx.utrLast4 ||
-    candidate.evidence.some((e) => evidenceContainsUtr(e.raw, candidate.ctx.utrLast4 ?? ""));
-
-  if (amountOk && utrOk) {
+  if (supportedByOneRow) {
     return { ...candidate, verified: true };
   }
   return null;

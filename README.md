@@ -17,7 +17,7 @@ Businesses.
 1. Open the workspace → **Load sample statements** (or drop your own CSVs).
 2. Statements parse — counts stamp in per app.
 3. The matching sweep runs: 204 transactions stream by, flagged rows flash red.
-   The counter climbs to **₹4,200** of missing money.
+   The counter reaches **₹4,200** in flagged transactions.
 4. The report shows three problems, each with:
    - the exact amount and what happened,
    - a **verified** stamp — every claim was re-checked against the raw
@@ -25,7 +25,7 @@ Businesses.
    - the cited CSV rows (hover a card to see them),
    - the next action: *raise the dispute here, call this support line, watch
      tomorrow's statement*.
-5. **Copy Report Link** → a read-only report page anyone can open.
+5. **Copy Report Link** → a read-only sample report page anyone can open.
 
 ## How it works
 
@@ -52,12 +52,15 @@ parse → match → verify → report flow genuinely runs, server-side, on your 
 **Sample data:** the four bundled statements (`public/samples/`) are
 generated, because a live merchant's real statements sit behind bank APIs that
 require licensed aggregator onboarding. Real merchants export exactly these
-CSVs by hand today — Hisaab automates the matching, not the download.
+CSVs by hand today — Hisaab automates the matching, not the download. The
+current share link replays the bundled sample report; uploaded files are
+processed in memory and are not stored.
 Wiring live statement pulls via an Account Aggregator is the roadmap item.
 
-**Optional AI layer:** with `OPENAI_API_KEY` set, the agent enriches finding
-narratives and maps unknown CSV formats. Without it, everything still works
-deterministically — the deployed demo never depends on an API being up.
+**Optional AI layer:** the repository contains a server-side enrichment hook for
+finding narratives and unknown CSV formats. The deployed demo keeps that hook
+off, so uploads stay on the deterministic path and the demo never depends on
+an API being up. It can be enabled deliberately later with an `OPENAI_API_KEY`.
 
 ## Stack
 

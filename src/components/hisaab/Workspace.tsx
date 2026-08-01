@@ -337,7 +337,7 @@ export function Workspace() {
   const [state, setState] = useState<DemoState>("empty");
   const [result, setResult] = useState<ReconciliationResult | null>(null);
   const [visible, setVisible] = useState(0);
-  const [missing, setMissing] = useState(0);
+  const [flaggedTotal, setFlaggedTotal] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const stage: Stage =
@@ -384,7 +384,7 @@ export function Workspace() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     setVisible(0);
-    setMissing(0);
+    setFlaggedTotal(0);
 
     // Resolve inputs: user files win; samples fill any gap.
     const haveApps = APPS.every((a) => files[a]);
@@ -460,11 +460,11 @@ export function Workspace() {
     }
   }
 
-  // Ticker replay over the REAL result: flags + missing-money counter.
+  // Ticker replay over the REAL result: flags + flagged-money counter.
   const flagSet = useMemo(() => new Set(result?.flagUtrs ?? []), [result]);
   const counterPlan = useMemo(() => {
     // Amounts staged into the counter as their ticker rows appear;
-    // entries whose UTR never appears (e.g. missing — no credit row) land at the end.
+    // entries whose UTR never appears (for example, a missing credit) land at the end.
     const byUtr = new Map<string, number>();
     let tail = 0;
     const flagUtrs = new Set(result?.flagUtrs ?? []);
@@ -480,7 +480,7 @@ export function Workspace() {
       }
     }
     return { byUtr, tail };
-  }, [result, flagSet]);
+  }, [result]);
 
   useEffect(() => {
     if (state !== "matching" || !result) return;
@@ -495,11 +495,11 @@ export function Workspace() {
       if (row && flagSet.has(row.utrLast4) && !consumed.has(row.utrLast4)) {
         consumed.add(row.utrLast4);
         acc += counterPlan.byUtr.get(row.utrLast4) ?? 0;
-        setMissing(acc);
+        setFlaggedTotal(acc);
       }
       if (i >= rows.length) {
         clearInterval(id);
-        setMissing(acc + counterPlan.tail);
+        setFlaggedTotal(acc + counterPlan.tail);
         setTimeout(() => setState("report"), 500);
       }
     }, 24);
@@ -630,16 +630,16 @@ export function Workspace() {
             {state === "matching" && result && (
               <div className="space-y-4">
                 <div className="rounded-2xl bg-lilac/70 p-5">
-                  <p className="label-caps text-muted-foreground">Missing money found</p>
+                  <p className="label-caps text-muted-foreground">Money flagged</p>
                   <p
                     aria-live="polite"
                     className="font-display text-[64px] leading-none font-bold tabular-nums sm:text-[72px]"
                   >
-                    ₹{formatPaisePlain(missing)}
+                    ₹{formatPaisePlain(flaggedTotal)}
                   </p>
                   <p className="mt-1 text-[14px]">
                     <span className="font-mono">{visible}</span> / {result.ticker.length} rows
-                    matched
+                    checked
                   </p>
                 </div>
                 <div className="rounded-2xl bg-card p-2">

@@ -75,6 +75,9 @@ function parseLine(line: string): string[] {
       }
     }
   }
+  if (inQuotes) {
+    throw new Error("Malformed CSV: unterminated quoted field");
+  }
   fields.push(current.trim());
   return fields;
 }

@@ -14,13 +14,18 @@ Completed:
 - UI wired to the live pipeline: real CSV uploads, one-click sample demo,
   ticker/flags/counter replay the real result, report page reconciles
   server-side. Mock deleted — one data path.
-- 13 vitest tests green · build green · lint 0 errors (7 pre-existing shadcn
-  warnings) · SSR smoke-tested (root + /report/demo, both 200 with full markup).
+- 15 vitest tests green · Vercel-targeted build green · lint 0 errors (6
+  pre-existing shadcn warnings) · SSR smoke-tested (root + /report/demo, both
+  200 with full markup).
 - Docs: README (judges), AGENTS.md (Codex), docs/project/{ARCHITECTURE,
-  TECH_DECISIONS}.md, .env.example.
+  TECH_DECISIONS, SUBMISSION, SECURITY_REVIEW}.md, .env.example.
+- Submission hardening: malformed CSVs are rejected, the evidence gate requires
+  amount and UTR on the same raw row, the animated total is labelled as flagged
+  money, and `vercel.json` selects the Vercel Nitro preset.
 
-Verification state: all local commits on `main`, **nothing pushed**. Push and
-deploy pending Ritesh's confirmation.
+Verification state: all local commits plus the current hardening changes are on
+`main`; the repository is still **not pushed**. The Vercel project exists, but
+production deployment and the public URL are pending.
 
 ## Pending (in order)
 
