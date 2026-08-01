@@ -181,7 +181,7 @@ same until the form is visible.
 - [x] `bun run test` passes: 16 tests
 - [x] `NITRO_PRESET=vercel bun run build` passes
 - [x] `bun run lint` has 0 errors
-- [x] Add and push the Codex hardening commit (`1ef0816`)
+- [x] Add and push the Codex polish commit (`9b9c7ca`)
 - [x] Run the static security review and record residual risks in [SECURITY_REVIEW.md](./SECURITY_REVIEW.md)
 - [x] Review the release diff and confirm no `.env` or secret is tracked
 
