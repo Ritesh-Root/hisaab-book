@@ -13,11 +13,11 @@ keeps the public story, evidence, and final checks in one place.
 | Participant | Individual projects are allowed; the official FAQ says the maximum project size is one | Ritesh owns the submission | verified |
 | Track | Choose one of nine tracks | Track 6: AI Agents for Bharat's Businesses | verified |
 | Deadline | 3 August 2026 at 11:59 PM on the event page | Submit with a buffer on 3 August | verified |
-| Deployed app | Public, working, active during evaluation, and no credentials required | Vercel URL | pending |
-| Repository | Public GitHub repository with visible commit history | `https://github.com/Ritesh-Root/hisaab-book` | pending push |
+| Deployed app | Public, working, active during evaluation, and no credentials required | `https://hisaab-book-umber.vercel.app` | ready |
+| Repository | Public GitHub repository with visible commit history | `https://github.com/Ritesh-Root/hisaab-book` at `1ef0816` | ready |
 | Demo video | Maximum three minutes; show the end-to-end product and Codex usage | Recorded product walkthrough | pending |
-| Project document | Public Google Doc covering track, problem statement, and stack | Paste-ready copy below | pending |
-| Viability gate | Deployed link opens, core flow runs, and repository matches the demo | Signed-out smoke test | pending |
+| Project document | Public Google Doc covering track, problem statement, and stack | [Draft created](https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit); public sharing still pending | pending |
+| Viability gate | Deployed link opens, core flow runs, and repository matches the demo | Signed-out home and `/report/demo` smoke test passed | passed |
 | Final action | BlockseBlock dashboard requires `Final Submit`; drafts do not count | Dashboard verification after submit | pending |
 
 Primary sources:
@@ -25,6 +25,14 @@ Primary sources:
 - [Official event page](https://blockseblock.com/hackathon_details/chatgpt-codex-hackathon-2026)
 - [Organizer-linked hackathon guide](https://docs.google.com/document/d/1sxdusoZMUEZduS2e0uXHCo5hv8rk-27O0fPzClYseyg/edit?tab=t.0#heading=h.rtfy2chl7r1v)
 - [BlockseBlock dashboard](https://blockseblock.com/dashboard)
+
+Live release:
+
+- App: <https://hisaab-book-umber.vercel.app>
+- Report: <https://hisaab-book-umber.vercel.app/report/demo>
+- GitHub: <https://github.com/Ritesh-Root/hisaab-book>
+- Release commit: `1ef0816`
+- Project description draft: <https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit>
 
 The guide lists this judging matrix:
 
@@ -168,22 +176,23 @@ same until the form is visible.
 
 ### Local
 
-- [x] `bun run test` passes: 13 tests
-- [x] `bun run build` passes
+- [x] `bun run test` passes: 15 tests
+- [x] `NITRO_PRESET=vercel bun run build` passes
 - [x] `bun run lint` has 0 errors
-- [ ] Add or finish the Codex hardening commits
+- [x] Add and push the Codex hardening commit (`1ef0816`)
 - [x] Run the static security review and record residual risks in [SECURITY_REVIEW.md](./SECURITY_REVIEW.md)
-- [ ] Review the final diff and confirm no `.env` or secret is tracked
+- [x] Review the release diff and confirm no `.env` or secret is tracked
 
 ### Public links
 
-- [ ] Push `main` to `origin` without rewriting history
-- [ ] Deploy the current build to Vercel or another approved host
-- [ ] Open `/` signed out and run the sample flow
-- [ ] Open `/report/demo` signed out and confirm the report renders
-- [ ] Confirm the deployed app does not expose `OPENAI_API_KEY`
-- [ ] Confirm the public GitHub history shows the final hardening work
-- [ ] Create the project-description Google Doc and set "Anyone with the link can view"
+- [x] Push `main` to `origin` without rewriting history
+- [x] Deploy the current build to Vercel or another approved host
+- [x] Open `/` signed out and run the sample flow
+- [x] Open `/report/demo` signed out and confirm the report renders
+- [x] Confirm the deployed app does not expose `OPENAI_API_KEY`
+- [x] Confirm the public GitHub history shows the final hardening work
+- [x] Create the project-description Google Doc
+- [ ] Set the Google Doc to "Anyone with the link can view"; the connected personal Gmail account cannot be changed to public through the available Drive sharing action
 - [ ] Record and upload the video under three minutes
 
 ### Final form
@@ -198,12 +207,13 @@ same until the form is visible.
 
 ## Current risks
 
-1. The app is not public yet. This is the highest-priority viability risk.
-2. The public history currently contains the main build, but the Codex usage
+1. The public history contains the main build, but the Codex usage
    evidence is not yet strong enough. The hardening work and video must close
    that gap without rewriting history.
-3. The share link is sample-only. Do not describe it as persistent storage for
+2. The share link is sample-only. Do not describe it as persistent storage for
    arbitrary merchant uploads.
+3. The project-description draft exists, but its Google Drive permission is not
+   public yet. Do not submit its link until a signed-out browser can open it.
 4. The public rules do not state the video host, file type, or caption policy.
    Use a public video link unless the authenticated form says otherwise.
 5. The public guide does not resolve whether a separate PPT is required. Check

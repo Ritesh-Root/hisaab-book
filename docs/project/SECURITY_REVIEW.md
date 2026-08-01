@@ -19,6 +19,7 @@ tracked files, generated client assets, and local Vercel metadata.
 | Persistence | No database, file-write path, browser storage, or upload storage was found in the application code. |
 | Evidence integrity | The verification gate now requires amount and UTR to appear on the same cited raw row. |
 | Test and build checks | 15 tests pass; Vercel-targeted build passes; lint has 0 errors. |
+| Signed-out production smoke | Vercel home and `/report/demo` returned successfully; the sample flow produced 204 transactions, 201 matched, and 3 findings. |
 
 Commands used included:
 
@@ -35,8 +36,7 @@ bun run lint
 ## Not checked
 
 - No production DAST, load test, or rate-limit test has run.
-- The deployed Vercel runtime is not public yet, so signed-out production
-  behavior and response headers still need verification.
+- Response-header and authenticated-flow audits have not run against production.
 - `npm audit --omit=dev` could not run because the repository has no npm
   lockfile. `bun pm scan` could not run because no Bun security scanner is
   configured.

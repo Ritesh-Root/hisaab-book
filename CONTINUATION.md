@@ -2,7 +2,7 @@
 
 Cold-start context for the next session. Deadline: **Aug 3, 2026, 11:59 PM**.
 
-## State: engine + UI wired, local only
+## State: engine + UI wired, pushed, and live
 
 Completed:
 - Reconciliation engine (`src/lib/engine/`): parse → normalize → match →
@@ -23,23 +23,26 @@ Completed:
   amount and UTR on the same raw row, the animated total is labelled as flagged
   money, and `vercel.json` selects the Vercel Nitro preset.
 
-Verification state: all local commits plus the current hardening changes are on
-`main`; the repository is still **not pushed**. The Vercel project exists, but
-production deployment and the public URL are pending.
+Verification state: the application hardening commit is on `main`; `main` is
+pushed to GitHub and production is live at
+`https://hisaab-book-umber.vercel.app`. Submission docs are being finalized.
 
 ## Pending (in order)
 
-1. **Push + deploy to Vercel** (owner: Ritesh + release-manager). Public link,
-   no credentials. Set up a keep-alive ping (cron-job.org, every 5 min) for the
-   judging window.
+1. **Keep the Vercel release warm** (owner: Ritesh + release-manager). Public
+  link is live with no credentials. Set up a keep-alive ping (cron-job.org,
+  every 5 min) for the judging window.
 2. **Optional**: `OPENAI_API_KEY` in Vercel env + flip `enrich: true` in the
    reconcile call if the enrichment layer should run live. Demo works without.
 3. **Use it yourself** (hard rule): run the demo flow 5+ times, drop odd CSVs
    at it, feel the friction, fix. An outsider must touch it before submission.
 4. **3-min demo video**: frustration hook (2 h/night by eye) → live Codex task
    → the ₹4,200 moment → evidence stamps. Record Aug 2, script via /humanizer.
-5. **Submission pack**: Google Doc (track 6, problem, stack), BlockseBlock
-   final submit by Aug 2 night — never at the deadline minute.
+5. **Submission pack**: the project-description Google Doc is drafted at
+  `https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit`,
+  but it still needs "Anyone with the link can view" access. Then record the
+  video and complete the BlockseBlock final submit by Aug 2 night, never at
+  the deadline minute.
 
 ## Codex-attribution plan (hackathon rule: "built primarily with OpenAI Codex")
 
