@@ -27,7 +27,7 @@ Completed:
   control, the report separates ₹4,200 flagged value from ₹1,850 missing value,
   sample-only links are labelled clearly, and the bilingual labels are corrected.
 
-Verification state: the application hardening commit is on `main`; `main` is
+Verification state: polished release commit `9b9c7ca` is on `main`; `main` is
 pushed to GitHub and production is live at
 `https://hisaab-book-umber.vercel.app`. Submission docs are being finalized.
 

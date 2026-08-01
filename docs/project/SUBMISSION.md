@@ -14,7 +14,7 @@ keeps the public story, evidence, and final checks in one place.
 | Track | Choose one of nine tracks | Track 6: AI Agents for Bharat's Businesses | verified |
 | Deadline | 3 August 2026 at 11:59 PM on the event page | Submit with a buffer on 3 August | verified |
 | Deployed app | Public, working, active during evaluation, and no credentials required | `https://hisaab-book-umber.vercel.app` | ready |
-| Repository | Public GitHub repository with visible commit history | `https://github.com/Ritesh-Root/hisaab-book` at `1ef0816` | ready |
+| Repository | Public GitHub repository with visible commit history | `https://github.com/Ritesh-Root/hisaab-book` at `9b9c7ca` | ready |
 | Demo video | Maximum three minutes; show the end-to-end product and Codex usage | Recorded product walkthrough | pending |
 | Project document | Public Google Doc covering track, problem statement, and stack | [Draft created](https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit); public sharing still pending | pending |
 | Viability gate | Deployed link opens, core flow runs, and repository matches the demo | Signed-out home and `/report/demo` smoke test passed | passed |
@@ -31,7 +31,7 @@ Live release:
 - App: <https://hisaab-book-umber.vercel.app>
 - Report: <https://hisaab-book-umber.vercel.app/report/demo>
 - GitHub: <https://github.com/Ritesh-Root/hisaab-book>
-- Release commit: `1ef0816`
+- Release commit: `9b9c7ca`
 - Project description draft: <https://docs.google.com/document/d/1R-uO7CiUAfX5ekcE5bAvptpf9rBGIHK9AcQosWMJj90/edit>
 
 The guide lists this judging matrix:
